@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { StoreFrontLayoutComponent } from './layouts/store-front-layout.component/store-front-layout.component';
 import { HomePageComponent } from './pages/home-page.component/home-page.component';
 import { GenderPageComponent } from './pages/gender-page.component/gender-page.component';
-import { ProductPageComponent } from '../product-page.component/product-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page.component/not-found-page.component';
+import { ProductPageComponent } from './pages/product-page.component/product-page.component';
 
 export const storeFrontRutes: Routes = [
   {
@@ -19,7 +19,7 @@ export const storeFrontRutes: Routes = [
         component: GenderPageComponent,
       },
       {
-        path: 'product/:id',
+        path: 'product/:idSlug',
         component: ProductPageComponent,
       },
       {

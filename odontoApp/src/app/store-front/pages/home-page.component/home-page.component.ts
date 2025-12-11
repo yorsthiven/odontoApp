@@ -1,8 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, output, signal } from '@angular/core';
 import { ProductCardComponent } from '@products/components/product-card.component/product-card.component';
+import { ProductsResponse } from '@products/interfaces/product.interface';
 import { ProductsService } from '@products/services/products.service';
-import { rxResource } from '@angular/core/rxjs-interop';
-
 
 @Component({
   selector: 'home-page',
@@ -14,10 +13,24 @@ export class HomePageComponent {
 
   productsService = inject(ProductsService);
 
-  productsResource = rxResource({
-    // request: () => ({}),
-    loader: ({ }) => {
-      return this.productsService.getProducts();
-    }
+  productsResponse = signal<ProductsResponse>({
+    count:0,
+    pages:0,
+    products:[]
   })
+
+  respuesta = output<ProductsResponse>;
+  // output<tipoDato>();
+
+  productsResource = effect(() => {
+    this.productsService
+      .getProducts({
+        limit: 5,
+        gender: 'women',
+      })
+      .subscribe((resp) => {
+        console.log('Respuesta del servicio:', resp);
+        this.productsResponse.set(resp);
+      });
+  });
 }
