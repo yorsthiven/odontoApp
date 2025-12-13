@@ -15,6 +15,8 @@ export class RegisterPageComponent {
   registerOk = signal(false);
   isPosting = signal(false);
   router = inject(Router);
+  mensaje = signal('');
+  successMessage = signal('Verifique datos');
 
   authService = inject(AuthService);
 
@@ -34,20 +36,19 @@ export class RegisterPageComponent {
       return;
     }
     const { email = '', password = '', fullName = '' } = this.loginForm.value;
-
-    this.authService.register(email!, password!, fullName!).subscribe((isAuthenticated) => {
-      if (isAuthenticated) {
-        this.router.navigateByUrl('/login');
-        this.registerOk.set(true);
+    this.authService.register(email!, password!, fullName!).subscribe((resp) => {
+      if (resp.ok) {
+        this.successMessage.set('Por favor, revise la información. Prueba');
+        this.registerOk.set(true); // activa la alerta de éxito
         setTimeout(() => {
           this.registerOk.set(false);
-        }, 2000);
-        return;
+          this.router.navigateByUrl('/auth/login'); // opcional: redirigir al login
+        }, 5000);
+      } else {
+        this.successMessage.set('Correo ya registrado, verifique por favor');
+        this.hasError.set(true); // activa la alerta de error
+        setTimeout(() => this.hasError.set(false), 3000);
       }
-      this.hasError.set(true);
-      setTimeout(() => {
-        this.hasError.set(false);
-      }, 2000);
     });
   }
 }

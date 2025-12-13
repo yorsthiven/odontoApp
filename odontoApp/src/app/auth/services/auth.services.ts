@@ -47,22 +47,22 @@ export class AuthService {
       );
   }
 
-  register(email: string, password: string, fullName: string): Observable<boolean> {
+  register(
+    email: string,
+    password: string,
+    fullName: string
+  ): Observable<{ ok: boolean; message: string }> {
     return this.http
-      .post<AuthResponse>(`${baseUrl}/auth/register`, {
+      .post<RegisterResponse>(`${baseUrl}/auth/register`, {
         email: email,
         password: password,
         fullName: fullName,
       })
       .pipe(
         map((resp) => {
-          console.log('----------resp------------>', resp);
-          return this.handleAuthSuccess(resp);
-        }),
+          return this.handleRegisterOk(resp)}),
         catchError((error: any) => {
-          console.log('-------errorrrrrr--------------->', error);
-          return this.handleRegisterError(error);
-        })
+          return this.handleRegisterError(error)})
       );
   }
 
@@ -97,8 +97,7 @@ export class AuthService {
     this._user.set(user);
     this._authStatus.set('authenticated');
     this._token.set(token);
-
-    // localStorage.setItem('token', token);
+    localStorage.setItem('token', token);
 
     return true;
   }
@@ -108,17 +107,32 @@ export class AuthService {
     return of(false);
   }
 
+  // private handleRegisterError(error: RegisterResponse) {
+  //   console.log('-------entro a handleRegisterError--------------->', error);
+  //   const errorMsg = error?.message || 'Error desconocido';
+  //   // this.error = errorMsg; // opcional si quieres guardar en el servicio
+  //   console.log('------- errorMsg--------------->', errorMsg);
+  //   return of(error); // puedes retornar false o un objeto con más info
+  // }
+
+  private handleRegisterOk(resp: RegisterResponse) {
+    return {
+      ok: true,
+      message: resp.message || 'Usuario registrado correctamente',
+    };
+  }
+
   private handleRegisterError(error: any) {
-    console.log('-------entro a handleRegisterError--------------->', error);
     const errorMsg = error?.error?.message || 'Error desconocido';
-    // this.error = errorMsg; // opcional si quieres guardar en el servicio
-    console.log('------- errorMsg--------------->', errorMsg);
-    return of(error); // puedes retornar false o un objeto con más info
+    return of({
+      ok: false,
+      message: errorMsg,
+    });
   }
 }
 
-interface respError {
+interface RegisterResponse {
   message: string;
-  error: string;
+  error?: string;
   statusCode: number;
 }
