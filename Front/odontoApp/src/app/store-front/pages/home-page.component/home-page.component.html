@@ -1,0 +1,13 @@
+<h1 class="text-3xl font-bold mt-6">Opciones</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt2 gap-3">
+  @for (product of productsResponse().products; track $index) {
+
+  <product-card [product]="product" />
+
+  }
+  <!-- Empty -->
+  @empty{
+  <p>No hay nada de productos</p>
+  }
+</div>
