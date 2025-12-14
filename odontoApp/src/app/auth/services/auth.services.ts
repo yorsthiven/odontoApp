@@ -6,12 +6,15 @@ import { rxResource } from '@angular/core/rxjs-interop';
 
 import { AuthResponse } from '@auth/interface/auth-response.interface';
 import { User } from '@auth/interface/user.interface';
+import { Router } from '@angular/router';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
 const baseUrl = environment.baseUrl;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private router = inject(Router); // 👈 aquí lo inyectas
+
   private _authStatus = signal<AuthStatus>('checking');
   private _user = signal<User | null>(null);
   private _token = signal<string | null>(localStorage.getItem('token'));
@@ -60,9 +63,11 @@ export class AuthService {
       })
       .pipe(
         map((resp) => {
-          return this.handleRegisterOk(resp)}),
+          return this.handleRegisterOk(resp);
+        }),
         catchError((error: any) => {
-          return this.handleRegisterError(error)})
+          return this.handleRegisterError(error);
+        })
       );
   }
 
@@ -89,8 +94,8 @@ export class AuthService {
     this._user.set(null);
     this._token.set(null);
     this._authStatus.set('not-authenticated');
-
     localStorage.removeItem('token');
+
   }
 
   private handleAuthSuccess({ token, user }: AuthResponse) {
@@ -98,7 +103,6 @@ export class AuthService {
     this._authStatus.set('authenticated');
     this._token.set(token);
     localStorage.setItem('token', token);
-
     return true;
   }
 
@@ -106,14 +110,6 @@ export class AuthService {
     this.logout();
     return of(false);
   }
-
-  // private handleRegisterError(error: RegisterResponse) {
-  //   console.log('-------entro a handleRegisterError--------------->', error);
-  //   const errorMsg = error?.message || 'Error desconocido';
-  //   // this.error = errorMsg; // opcional si quieres guardar en el servicio
-  //   console.log('------- errorMsg--------------->', errorMsg);
-  //   return of(error); // puedes retornar false o un objeto con más info
-  // }
 
   private handleRegisterOk(resp: RegisterResponse) {
     return {
